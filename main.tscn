@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://b3newgd3ti60h"]
+
+[ext_resource type="PackedScene" uid="uid://bdo7p6f68cful" path="res://ore.tscn" id="1_jgsnt"]
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_mwqmi"]
+
+[node name="main" type="Node2D"]
+script = ExtResource("1_mwqmi")
+
+[node name="ore" parent="." instance=ExtResource("1_jgsnt")]
+position = Vector2(586, 288)
