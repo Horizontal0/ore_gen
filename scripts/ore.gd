@@ -1,7 +1,7 @@
 extends TileMap
 
 var current_pos = Vector2i(0,0)
-
+var to_be_genn = []
 const default_layer = 0
 
 const cell_list ={
@@ -57,7 +57,11 @@ const cell_list ={
 
 func _process(delta):
 	if Input.is_action_just_pressed("reset"):
+		clear()
 		generate(current_pos)
+		set_ore_border()
+		#print(to_be_genn)
+
 
 func _ready():
 	#generate(current_pos)
@@ -66,16 +70,15 @@ func _ready():
 func generate(current_pos):
 	clear()
 	set_cell(default_layer,current_pos,1,cell_list["blank"])
+	var rng = 1.25
 	var to_be_gen = []
 	var generated = []
-	var rng = 10
-	var rng_minus = 1
 	to_be_gen.append(current_pos)
 	while not to_be_gen.is_empty():
 		var tile = to_be_gen[0]
 		for pos in to_be_gen:
-			if randf_range(rng_minus,rng) < rng-rng_minus:
-				if randf_range(rng_minus,rng) < rng-rng_minus:
+			if randf_range(0,1) <= rng:
+				if randf_range(0,1) <= rng:
 					generated.append(pos)
 					if not generated.has(Vector2i(pos.x,pos.y-1)):
 						set_cell(default_layer,Vector2i(pos.x,pos.y-1),1,cell_list["blank"])
@@ -83,7 +86,7 @@ func generate(current_pos):
 						to_be_gen.erase(pos)
 				else:
 					to_be_gen.erase(Vector2i(pos.x,pos.y-1))
-				if randf_range(rng_minus,rng) < rng-rng_minus:
+				if randf_range(0,1) <= rng:
 					generated.append(pos)
 					if not generated.has(Vector2i(pos.x,pos.y+1)):
 						set_cell(default_layer,Vector2i(pos.x,pos.y+1),1,cell_list["blank"])
@@ -91,7 +94,7 @@ func generate(current_pos):
 						to_be_gen.erase(pos)
 				else:
 					to_be_gen.erase(Vector2i(pos.x,pos.y+1))
-				if randf_range(rng_minus,rng) < rng-rng_minus:
+				if randf_range(0,1) <= rng:
 					generated.append(pos)
 					if not generated.has(Vector2i(pos.x-1,pos.y)):
 						set_cell(default_layer,Vector2i(pos.x-1,pos.y),1,cell_list["blank"])
@@ -99,31 +102,55 @@ func generate(current_pos):
 						to_be_gen.erase(pos)
 				else:
 					to_be_gen.erase(Vector2i(pos.x-1,pos.y))
-				if randf_range(rng_minus,rng) < rng-rng_minus:
+				if randf_range(0,1) <= rng:
 					generated.append(pos)
 					if not generated.has(Vector2i(pos.x+1,pos.y)):
 						set_cell(default_layer,Vector2i(pos.x+1,pos.y),1,cell_list["blank"])
 						to_be_gen.append(Vector2i(pos.x+1,pos.y))
 						to_be_gen.erase(pos)
-						print(to_be_gen)
 				else:
 					to_be_gen.erase(Vector2i(pos.x+1,pos.y))
-				rng += 1
-			print(rng)
-			print(rng_minus)
+				#print(generated)
+				to_be_genn = generated
+				rng -= 0.25
+			
 			to_be_gen.erase(pos)
 		to_be_gen.erase(tile)
-			
+
+func set_ore_border():
+	for x in to_be_genn:
+		while to_be_genn.count(x)> 1 :
+			to_be_genn.erase(x)
+	for x in to_be_genn:
+		if not is_up(x):
+			set_cell(default_layer,x,1,cell_list["up"])
+		if not is_down(x):
+			set_cell(default_layer,x,1,cell_list["down"])
+		if not is_left(x):
+			set_cell(default_layer,x,1,cell_list["left"])
+		if not is_right(x):
+			set_cell(default_layer,x,1,cell_list["right"])
+		if not is_up(x) and not is_down(x):
+			set_cell(default_layer,x,1,cell_list["up_down"])
+		if not is_up(x) and not is_left(x):
+			set_cell(default_layer,x,1,cell_list["up_left"])
+		if not is_up(x) and not is_right(x):
+			set_cell(default_layer,x,1,cell_list["up_right"])
+		if not is_down(x) and not is_left(x):
+			set_cell(default_layer,x,1,cell_list["down_left"])
+		if not is_down(x) and not is_right(x):
+			set_cell(default_layer,x,1,cell_list["down_right"])
+		print(x)
 
 
 func is_up(current_pos):
-	return get_cell_source_id(default_layer, current_pos.x,current_pos.y+1) == 1
+	return get_cell_source_id(default_layer, Vector2i(current_pos.x,current_pos.y-1)) == 1
 
 func is_down(current_pos):
-	return get_cell_source_id(default_layer, current_pos.x,current_pos.y-1) == 1
+	return get_cell_source_id(default_layer, Vector2i(current_pos.x,current_pos.y+1)) == 1
 	
 func is_left(current_pos):
-	return get_cell_source_id(default_layer, current_pos.x-1,current_pos.y) == 1
+	return get_cell_source_id(default_layer, Vector2i(current_pos.x-1,current_pos.y)) == 1
 
 func is_right(current_pos):
-	return get_cell_source_id(default_layer, current_pos.x+1,current_pos.y) == 1
+	return get_cell_source_id(default_layer, Vector2i(current_pos.x+1,current_pos.y)) == 1
